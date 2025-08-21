@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Konsultasi AI Lius Retang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Menggunakan font Poppins yang populer di kalangan Gen Z */
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+      body {
+        font-family: "Poppins", sans-serif;
+        transition: background-color 0.3s ease; /* Transisi untuk perubahan tema */
+        padding: 1rem; /* Padding global untuk tampilan yang lebih baik di mobile */
+        min-height: 100vh; /* Memastikan body mengisi seluruh tinggi viewport */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .container-bg {
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 1.5rem; /* Sudut lebih membulat */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Styling pesan chat yang normal */
+      .message-container {
+        display: flex;
+        margin-bottom: 0.75rem; /* Spasi antar pesan */
+      }
+      .message-container.sent {
+        justify-content: flex-end; /* Pesan dari pengguna di kanan */
+      }
+      .message-container.received {
+        justify-content: flex-start; /* Pesan dari konsultan/lainnya di kiri */
+      }
+
+      .message-bubble {
+        max-width: 80%; /* Batasi lebar bubble */
+        padding: 0.75rem 1rem; /* Padding di dalam bubble */
+        border-radius: 1.25rem; /* Sudut bubble lebih membulat */
+        word-wrap: break-word; /* Pesan panjang akan menyesuaikan */
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 1.4; /* Kerapatan teks */
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Default align text to start */
+      }
+
+      /* Panah kecil pada bubble chat */
+      .message-bubble::before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        bottom: 0px; /* Panah di bagian bawah bubble */
+      }
+
+      .message-bubble.sent {
+        background-color: #c7d2fe; /* Warna biru lebih kalem */
+        color: #4338ca;
+        /* Bentuk bubble kanan */
+        border-bottom-right-radius: 0.25rem; /* Sudut kanan bawah lebih tajam */
+        align-self: flex-end; /* Memastikan bubble di kanan */
+        align-items: flex-end; /* Align text to end within sent bubble */
+      }
+      .message-bubble.sent::before {
+        border-width: 0 10px 10px 0;
+        border-color: transparent #c7d2fe transparent transparent;
+        right: -8px; /* Posisi panah */
+      }
+
+      .message-bubble.received {
+        background-color: #d1fae5; /* Warna hijau muda yang cerah */
+        color: #047857;
+        /* Bentuk bubble kiri */
+        border-bottom-left-radius: 0.25rem; /* Sudut kiri bawah lebih tajam */
+        align-self: flex-start; /* Memastikan bubble di kiri */
+        align-items: flex-start; /* Align text to start within received bubble */
+      }
+      .message-bubble.received::before {
+        border-width: 10px 10px 0 0;
+        border-color: transparent transparent transparent #d1fae5;
+        left: -8px; /* Posisi panah */
+      }
+
+      .message-sender {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: rgba(0, 0, 0, 0.6); /* Warna nama pengirim */
+      }
+
+      .message-time {
+        font-size: 0.7rem; /* Ukuran waktu lebih kecil */
+        color: #6b7280; /* Abu-abu */
+        margin-top: 0.5rem; /* Spasi dari teks pesan */
+      }
+
+      /* Memastikan pesan baru muncul di bagian bawah dan bisa di-scroll */
+      #chatMessages {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto; /* Aktifkan scrolling vertikal */
+        min-height: 250px; /* Tinggi minimum area chat */
+        max-height: 450px; /* Tinggi maksimum yang bisa di-scroll */
+        padding-right: 8px; /* Ruang untuk scrollbar */
+      }
+      /* Scrollbar lebih minimalis */
+      #chatMessages::-webkit-scrollbar {
+        width: 8px;
+      }
+      #chatMessages::-webkit-scrollbar-thumb {
+        background-color: #a0aec0;
+        border-radius: 4px;
+      }
+      #chatMessages::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+
+      /* Styling untuk loading indicator */
+      .loading-dots span {
+        animation: bounce 1.4s infinite ease-in-out both;
+      }
+      .loading-dots span:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .loading-dots span:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+      .loading-dots span:nth-child(3) {
+        animation-delay: 0s;
+      }
+
+      @keyframes bounce {
+        0%,
+        80%,
+        100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+
+      /* Animasi Selamat Datang */
+      .fade-in-up {
+        animation: fadeInUp 1s ease-out forwards;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Tombol tema */
+      .theme-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        z-index: 1000;
+      }
+      .theme-toggle-btn:hover {
+        transform: scale(1.1);
+      }
+
+      /* Tema Default (Hijau) */
+      body.theme-green {
+        background-color: #e6ffee;
+      }
+      body.theme-green .container-bg {
+        background-color: #ffffff;
+      }
+      body.theme-green .theme-toggle-btn {
+        background-color: #10b981; /* Hijau */
+      }
+      body.theme-green .theme-toggle-btn svg {
+        color: #ffffff;
+      }
+      body.theme-green .message-bubble.sent {
+        background-color: #c7d2fe;
+        color: #4338ca;
+      }
+      body.theme-green .message-bubble.sent::before {
+        border-color: transparent #c7d2fe transparent transparent;
+      }
+      body.theme-green .message-bubble.received {
+        background-color: #d1fae5;
+        color: #047857;
+      }
+      body.theme-green .message-bubble.received::before {
+        border-color: transparent transparent transparent #d1fae5;
+      }
+
+      /* Tema Pink */
+      body.theme-pink {
+        background-color: #ffe6f2; /* Latar pink muda */
+      }
+      body.theme-pink .container-bg {
+        background-color: #fff0f5; /* Container pink lebih gelap */
+      }
+      body.theme-pink .message-bubble.sent {
+        background-color: #fbcfe8; /* Pink lebih terang */
+        color: #db2777; /* Teks pink gelap */
+      }
+      body.theme-pink .message-bubble.sent::before {
+        border-color: transparent #fbcfe8 transparent transparent;
+      }
+      body.theme-pink .message-bubble.received {
+        background-color: #fff9e6; /* Kuning muda */
+        color: #d97706; /* Teks oranye gelap */
+      }
+      body.theme-pink .message-bubble.received::before {
+        border-color: transparent transparent transparent #fff9e6;
+      }
+      body.theme-pink .bg-blue-600,
+      body.theme-pink .bg-green-600 {
+        background-color: #db2777; /* Tombol jadi pink gelap */
+      }
+      body.theme-pink .hover\:bg-blue-700:hover,
+      body.theme-pink .hover\:bg-green-700:hover {
+        background-color: #be185d; /* Hover tombol pink lebih gelap */
+      }
+      body.theme-pink .focus\:ring-blue-500:focus {
+        --tw-ring-color: #db2777; /* Ring focus juga pink */
+      }
+      body.theme-pink .focus\:border-blue-500:focus {
+        border-color: #db2777; /* Border focus juga pink */
+      }
+      body.theme-pink .theme-toggle-btn {
+        background-color: #ec4899; /* Pink */
+      }
+      body.theme-pink .theme-toggle-btn svg {
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen flex flex-col items-center justify-center"
+  >
+    <div
+      class="container-bg p-8 sm:p-12 rounded-3xl w-full max-w-xl md:max-w-3xl"
+    >
+      <h1
+        class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-2 fade-in-up"
+      >
+        AI Lius Retang Hub!
+      </h1>
+      <p id="welcomeMessage" class="text-base text-gray-600 mb-6 text-center">
+        Memuat...
+      </p>
+
+      <div id="content" class="hidden">
+        <p class="text-gray-700 mb-4 text-center">
+          Mulai konsultasi Anda sekarang:
+        </p>
+
+        <!-- Area pesan chat -->
+        <div
+          id="chatMessages"
+          class="mt-4 p-4 md:p-6 bg-gray-50 border border-gray-200 rounded-lg text-left"
+        >
+          <!-- Pesan chat akan muncul di sini -->
+          <p class="text-gray-500 text-center text-sm">
+            Mulai konsultasi Anda!
+          </p>
+        </div>
+
+        <!-- Input pesan dan tombol kirim -->
+        <div
+          class="flex flex-col sm:flex-row mt-4 sm:space-x-3 space-y-3 sm:space-y-0"
+        >
+          <input
+            type="text"
+            id="chatInput"
+            class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+            placeholder="Ketik pesan Anda..."
+          />
+          <button
+            id="sendMessageBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
+          >
+            Kirim
+          </button>
+        </div>
+        <!-- Loading indicator untuk balasan AI -->
+        <div
+          id="loadingIndicator"
+          class="hidden mt-4 text-gray-600 text-sm flex items-center justify-center"
+        >
+          <span>Lius sedang mengetik</span>
+          <span class="loading-dots ml-2">
+            <span
+              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
+            ></span>
+            <span
+              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
+            ></span>
+            <span
+              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
+            ></span>
+          </span>
+        </div>
+      </div>
+
+      <button
+        id="logoutBtn"
+        class="w-full mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
+      >
+        Logout
+      </button>
+    </div>
+
+    <!-- Tombol untuk mengganti tema (mode warna) -->
+    <div id="themeToggleBtn" class="theme-toggle-btn">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-palette"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M14.5 9.5a2.5 2.5 0 0 1 5 0v5a2.5 2.5 0 0 1-5 0Z" />
+        <path d="M6 9.5h2.5a2.5 2.5 0 0 1 0 5H6a2.5 2.5 0 0 1 0-5Z" />
+        <path d="M12 7.5V6a2.5 2.5 0 0 0-5 0v1.5a2.5 2.5 0 0 0 5 0Z" />
+        <path d="M12 16.5V18a2.5 2.5 0 0 1-5 0v-1.5a2.5 2.5 0 0 1 5 0Z" />
+      </svg>
+    </div>
+
+    <!-- Modal untuk menampilkan pesan error/info (pengganti alert()) -->
+    <div
+      id="modal"
+      class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-xl w-80 text-center">
+        <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800">
+          Pesan
+        </h3>
+        <p id="modalMessage" class="text-gray-700 mb-6"></p>
+        <button
+          id="modalCloseBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- Integrasi SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        query,
+        orderBy,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+      // Konfigurasi Firebase Anda (SAMA DENGAN auth.html)
+      const firebaseConfig = {
+        apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4",
+        authDomain: "konsultasi-saya.firebaseapp.com",
+        projectId: "konsultasi-saya",
+        storageBucket: "konsultasi-saya.firebasestorage.app",
+        messagingSenderId: "1090569635887",
+        appId: "1:1090569635887:web:a5441ac4e7d0f9014adeda",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Ambil elemen HTML
+      const welcomeMessage = document.getElementById("welcomeMessage");
+      const contentDiv = document.getElementById("content");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const chatInput = document.getElementById("chatInput");
+      const sendMessageBtn = document.getElementById("sendMessageBtn");
+      const chatMessagesDiv = document.getElementById("chatMessages");
+      const loadingIndicator = document.getElementById("loadingIndicator");
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+      const modal = document.getElementById("modal");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalMessage = document.getElementById("modalMessage");
+      const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+      let currentUserEmail = null;
+      let currentUserId = null;
+
+      function showModal(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modal.classList.remove("hidden");
+      }
+
+      modalCloseBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUserEmail = user.email;
+          currentUserId = user.uid;
+          welcomeMessage.textContent = `Halo, ${user.email.split("@")[0]}!`;
+          contentDiv.classList.remove("hidden");
+
+          loadChatMessages(currentUserId);
+        } else {
+          console.log("Pengguna belum login, mengarahkan ke halaman login.");
+          window.location.href = "auth.html";
+        }
+      });
+
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+          console.log("Pengguna berhasil logout.");
+        } catch (error) {
+          console.error("Gagal logout:", error.message);
+          showModal(
+            "Gagal Logout",
+            "Terjadi kesalahan saat logout. Silakan coba lagi."
+          );
+        }
+      });
+
+      async function generateAIResponse(userPrompt) {
+        loadingIndicator.classList.remove("hidden");
+        sendMessageBtn.disabled = true;
+        chatInput.disabled = true;
+        chatInput.value = "";
+
+        // === PENYESUAIAN PENTING DI SINI: MENAMBAHKAN INSTRUKSI UNTUK FORMAT BALASAN AI ===
+        // Kita akan meminta AI untuk membalas dengan struktur yang rapi.
+        let promptUntukAI = `Anda adalah konsultan AI yang ramah, informatif, dan membantu. Tolong jawab pertanyaan berikut dengan penjelasan yang terstruktur, menggunakan paragraf terpisah untuk ide-ide yang berbeda, dan jika relevan, gunakan poin-poin atau daftar. Pertanyaan: "${userPrompt}"`;
+
+        let chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: promptUntukAI }] }); // Kirim prompt yang sudah dimodifikasi
+
+        const payload = { contents: chatHistory };
+        // =========================================================================
+        // PENTING: GANTI "YOUR_API_KEY_HERE" DENGAN KUNCI API YANG SUDAH KAMU DAPATKAN!
+        const apiKey = "AIzaSyCDSnyG31AY9WaLvylABMOL0Aynjbkd23s";
+        // =========================================================================
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const result = await response.json();
+
+          if (
+            result.candidates &&
+            result.candidates.length > 0 &&
+            result.candidates[0].content &&
+            result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0
+          ) {
+            const aiText = result.candidates[0].content.parts[0].text;
+            return aiText;
+          } else {
+            console.error("Struktur respons AI tidak terduga:", result);
+            showModal(
+              "Kesalahan AI",
+              "AI tidak dapat menghasilkan balasan. Periksa konsol browser."
+            );
+            return "Maaf, AI tidak dapat menghasilkan balasan saat ini.";
+          }
+        } catch (error) {
+          console.error("Error memanggil Gemini API:", error);
+          showModal(
+            "Kesalahan Koneksi AI",
+            "Ada masalah saat menghubungi AI. Periksa koneksi internet atau API Key Anda."
+          );
+          return "Maaf, ada masalah saat menghubungi AI. Silakan coba lagi.";
+        } finally {
+          loadingIndicator.classList.add("hidden");
+          sendMessageBtn.disabled = false;
+          chatInput.disabled = false;
+        }
+      }
+
+      sendMessageBtn.addEventListener("click", async () => {
+        const messageText = chatInput.value.trim();
+        if (messageText && currentUserEmail && currentUserId) {
+          try {
+            await addDoc(collection(db, "chats", currentUserId, "messages"), {
+              text: messageText,
+              sender: currentUserEmail,
+              timestamp: serverTimestamp(),
+            });
+
+            const aiResponse = await generateAIResponse(messageText);
+
+            if (aiResponse && aiResponse.length > 0) {
+              await addDoc(collection(db, "chats", currentUserId, "messages"), {
+                text: aiResponse,
+                sender: "AI Konsultan",
+                timestamp: serverTimestamp(),
+              });
+            }
+          } catch (e) {
+            console.error(
+              "Error saat mengirim pesan atau mendapatkan balasan AI: ",
+              e
+            );
+            showModal(
+              "Kesalahan",
+              "Gagal mengirim pesan atau mendapatkan balasan dari AI."
+            );
+          }
+        } else if (!messageText) {
+          showModal("Pesan Kosong", "Pesan tidak boleh kosong!");
+        } else if (!currentUserId) {
+          showModal(
+            "Kesalahan Otentikasi",
+            "Sesi pengguna tidak valid. Silakan coba login kembali."
+          );
+        }
+      });
+
+      function loadChatMessages(userId) {
+        if (!userId) {
+          console.error("UID pengguna tidak tersedia untuk memuat chat.");
+          return;
+        }
+        const messagesQuery = query(
+          collection(db, "chats", userId, "messages"),
+          orderBy("timestamp", "asc")
+        );
+
+        onSnapshot(
+          messagesQuery,
+          (snapshot) => {
+            chatMessagesDiv.innerHTML = "";
+            snapshot.forEach((doc) => {
+              const message = doc.data();
+              const messageTime = message.timestamp
+                ? new Date(message.timestamp.toDate()).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Sekarang";
+
+              const messageContainer = document.createElement("div");
+              messageContainer.classList.add(
+                "message-container",
+                message.sender === currentUserEmail ? "sent" : "received"
+              );
+
+              const messageBubble = document.createElement("div");
+              messageBubble.classList.add("message-bubble");
+              messageBubble.classList.add(
+                message.sender === currentUserEmail ? "sent" : "received"
+              );
+
+              if (message.sender !== currentUserEmail) {
+                const senderName = document.createElement("span");
+                senderName.classList.add("message-sender");
+                senderName.textContent =
+                  message.sender === "AI Konsultan"
+                    ? "AI Konsultan:"
+                    : message.sender.split("@")[0] + ":";
+                messageBubble.appendChild(senderName);
+              }
+
+              // GUNAKAN innerHTML untuk merender Markdown sederhana atau baris baru
+              const messageTextElement = document.createElement("div"); // Ubah dari p ke div
+              messageTextElement.innerHTML = message.text.replace(
+                /\n/g,
+                "<br>"
+              ); // Ganti newline dengan <br>
+              messageBubble.appendChild(messageTextElement);
+
+              const timeElement = document.createElement("span");
+              timeElement.classList.add("message-time");
+              timeElement.textContent = messageTime;
+              messageBubble.appendChild(timeElement);
+
+              messageContainer.appendChild(messageBubble);
+              chatMessagesDiv.appendChild(messageContainer);
+            });
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+          },
+          (error) => {
+            console.error("Error mendengarkan pesan: ", error);
+            showModal("Kesalahan Chat", "Gagal memuat pesan chat.");
+          }
+        );
+      }
+
+      // === Fungsionalitas Tema Warna ===
+      const currentTheme = localStorage.getItem("theme") || "theme-green";
+      document.body.classList.add(currentTheme);
+
+      themeToggleBtn.addEventListener("click", () => {
+        if (document.body.classList.contains("theme-green")) {
+          document.body.classList.remove("theme-green");
+          document.body.classList.add("theme-pink");
+          localStorage.setItem("theme", "theme-pink");
+        } else {
+          document.body.classList.remove("theme-pink");
+          document.body.classList.add("theme-green");
+          localStorage.setItem("theme", "theme-green");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Daftar - Konsultasi Saya</title>
+    <!-- Tailwind CSS CDN untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Masuk atau Daftar</h1>
+        
+        <form id="authForm" class="space-y-4">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="nama@email.com" required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
+                <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="minimal 6 karakter" required>
+            </div>
+
+            <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:space-x-3">
+                <button type="button" id="registerBtn" class="w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                    Daftar
+                </button>
+                <button type="button" id="loginBtn" class="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                    Login
+                </button>
+            </div>
+        </form>
+        
+        <p id="authMessage" class="mt-6 text-center text-sm font-medium"></p>
+    </div>
+
+    <!-- Integrasi SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
+    <script type="module">
+        // Import fungsi-fungsi yang dibutuhkan
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4",
+            authDomain: "konsultasi-saya.firebaseapp.com",
+            projectId: "konsultasi-saya",
+            storageBucket: "konsultasi-saya.firebasestorage.app",
+            messagingSenderId: "1090569635887",
+            appId: "1:1090569635887:web:a5441ac4e7d0f9014adeda"
+        };
+
+        // Inisialisasi Firebase App dan Auth
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Ambil elemen HTML yang dibutuhkan
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const authMessage = document.getElementById('authMessage');
+
+        // Fungsi untuk menampilkan pesan status
+        function showMessage(message, isError = false) {
+            authMessage.textContent = message;
+            authMessage.classList.remove('text-green-600', 'text-red-600');
+            authMessage.classList.add(isError ? 'text-red-600' : 'text-green-600');
+        }
+
+        // Event listener untuk tombol DAFTAR
+        registerBtn.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            try {
+                // Panggil fungsi pendaftaran dari Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log("Pengguna baru terdaftar:", userCredential.user);
+                showMessage("Daftar berhasil! Anda sekarang bisa login.");
+                // Redirect ke halaman konsultasi setelah berhasil daftar
+                window.location.href = "konsultasi.html"; 
+            } catch (error) {
+                // Tangani kesalahan
+                console.error("Kesalahan saat mendaftar:", error.code, error.message);
+                let errorMessage = "Gagal mendaftar. Silakan coba lagi.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Email ini sudah terdaftar.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Kata sandi terlalu lemah (minimal 6 karakter).";
+                }
+                showMessage(errorMessage, true);
+            }
+        });
+
+        // Event listener untuk tombol LOGIN
+        loginBtn.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            try {
+                // Panggil fungsi login dari Firebase Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log("Pengguna berhasil login:", userCredential.user);
+                showMessage("Login berhasil! Selamat datang kembali.");
+                
+                // Redirect ke halaman konsultasi setelah berhasil login
+                window.location.href = "konsultasi.html"; 
+            } catch (error) {
+                // Tangani kesalahan
+                console.error("Kesalahan saat login:", error.code, error.message);
+                let errorMessage = "Gagal login. Periksa email atau kata sandi Anda.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Email atau kata sandi salah.";
+                }
+                showMessage(errorMessage, true);
+            }
+        });
+    </script>
+
+</body>
+</html>
