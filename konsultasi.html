@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Konsultasi AI Lius Retang</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       /* Menggunakan font Poppins yang populer di kalangan Gen Z */
@@ -466,7 +465,6 @@
   </head>
   <body class="bg-gray-100 min-h-screen flex flex-col items-center">
     <div class="container-bg p-0 rounded-3xl">
-      <!-- p-0 untuk mengelola padding di dalam sections -->
       <div class="header-section">
         <h1 class="text-3xl sm:text-4xl font-bold mb-2 fade-in-up">
           AI Lius Retang Hub!
@@ -479,22 +477,18 @@
           Mulai konsultasi Anda sekarang:
         </p>
 
-        <!-- Area pesan chat -->
         <div id="chatMessages" class="rounded-lg text-left">
-          <!-- Pesan chat akan muncul di sini -->
           <p id="initialChatMessage" class="text-center text-sm">
             Mulai konsultasi Anda!
           </p>
         </div>
 
-        <!-- Input pesan dan tombol kirim -->
         <div
           class="chat-input-section flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3"
         >
           <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." />
           <button id="sendMessageBtn">Kirim</button>
         </div>
-        <!-- Loading indicator untuk balasan AI -->
         <div
           id="loadingIndicator"
           class="hidden mt-4 text-sm flex items-center justify-center pb-4"
@@ -516,7 +510,6 @@
       </button>
     </div>
 
-    <!-- Tombol untuk mengganti tema (mode warna) -->
     <div id="themeToggleBtn" class="theme-toggle-btn">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -538,7 +531,6 @@
       </svg>
     </div>
 
-    <!-- Elemen Audio untuk Musik Latar Belakang -->
     <audio
       id="backgroundMusic"
       loop
@@ -547,7 +539,6 @@
       style="display: none"
     ></audio>
 
-    <!-- Modal untuk menampilkan pesan error/info (pengganti alert()) -->
     <div
       id="modal"
       class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center"
@@ -566,7 +557,6 @@
       </div>
     </div>
 
-    <!-- Integrasi SDK Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
@@ -586,6 +576,7 @@
         orderBy,
         onSnapshot,
         serverTimestamp,
+        getDocs,
       } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
       // Konfigurasi Firebase Anda (SAMA DENGAN index.html)
@@ -685,18 +676,18 @@
         }
       });
 
-      async function generateAIResponse(userPrompt) {
+      async function generateAIResponse(userPrompt, history) {
         loadingIndicator.classList.remove("hidden");
         sendMessageBtn.disabled = true;
         chatInput.disabled = true;
-        chatInput.value = "";
 
-        let chatHistory = [];
-        let promptUntukAI = `Anda adalah konsultan AI bernama Lius Retang. Misi Anda adalah menyediakan konsultasi yang ramah, informatif, dan akurat kepada pengguna. Anda harus **selalu menjawab pertanyaan secara langsung, tanpa melenceng dari topik**. Jelaskan konsep dengan **detail yang cukup, terstruktur dengan baik**, menggunakan **paragraf-paragraf terpisah**, dan **poin-poin atau daftar bernomor (jika relevan)**. **Gunakan bahasa Indonesia yang jelas dan mudah dipahami.** Berikan respons dalam format *Markdown sederhana* (misal: **bold**, *italic*, list bullet dengan -, atau numbered list dengan 1. 2.). Pertanyaan pengguna: "${userPrompt}"`;
+        const payload = {
+          contents: [
+            ...history,
+            { role: "user", parts: [{ text: userPrompt }] },
+          ],
+        };
 
-        chatHistory.push({ role: "user", parts: [{ text: promptUntukAI }] });
-
-        const payload = { contents: chatHistory };
         // GANTI DENGAN KUNCI API YANG SUDAH KAMU DAPATKAN!
         const apiKey = "AIzaSyASz8fEtWreRNQcD_ucLYfG6ZxQWUjU_uU";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
@@ -746,15 +737,56 @@
           if (initialChatMessage) {
             initialChatMessage.style.display = "none";
           }
+          chatInput.value = ""; // Hapus input setelah pesan dikirim
 
           try {
+            // Dapatkan riwayat chat sebelum mengirim pesan baru
+            const messagesRef = collection(
+              db,
+              "chats",
+              currentUserId,
+              "messages"
+            );
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+            const querySnapshot = await getDocs(q);
+            const chatHistory = [];
+
+            // Tambahkan instruksi persona di awal riwayat
+            chatHistory.push({
+              role: "user",
+              parts: [
+                {
+                  text: "Saya adalah konsultan AI bernama Lius Retang. Saya dikembangkan oleh Yulius Panduakatidahu, seorang mahasiswa dari Universitas STEKOM jurusan Sistem Komputer. Misi Anda adalah menyediakan konsultasi yang ramah, informatif, dan akurat kepada pengguna. Anda harus **selalu menjawab pertanyaan secara langsung, tanpa melenceng dari topik**. Jelaskan konsep dengan **detail yang cukup, terstruktur dengan baik**, menggunakan **paragraf-paragraf terpisah**, dan **poin-poin atau daftar bernomor (jika relevan)**. **Gunakan bahasa Indonesia yang jelas dan mudah dipahami.** Berikan respons dalam format *Markdown sederhana* (misal: **bold**, *italic*, list bullet dengan -, atau numbered list dengan 1. 2.).",
+                },
+              ],
+            });
+            chatHistory.push({
+              role: "model",
+              parts: [
+                {
+                  text: "Siap, saya mengerti. Saya akan menjawab setiap pertanyaan sesuai instruksi.",
+                },
+              ],
+            });
+
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              const role = data.sender === "AI Konsultan" ? "model" : "user";
+              chatHistory.push({ role, parts: [{ text: data.text }] });
+            });
+
+            // Kirim pesan pengguna ke database
             await addDoc(collection(db, "chats", currentUserId, "messages"), {
               text: messageText,
               sender: currentUserEmail,
               timestamp: serverTimestamp(),
             });
 
-            const aiResponse = await generateAIResponse(messageText);
+            // Panggil AI dengan riwayat lengkap dan pertanyaan terbaru
+            const aiResponse = await generateAIResponse(
+              messageText,
+              chatHistory
+            );
 
             if (
               aiResponse &&
