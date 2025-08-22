@@ -1,38 +1,416 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Daftar - Konsultasi Saya</title>
-    <!-- Tailwind CSS CDN untuk styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panda Login - Konsultasi AI Lius Retang</title>
+    <style>
+      :root {
+        --bg: #0f1226;
+        --card: #161a36;
+        --accent: #7c5cff;
+        --accent-2: #00e7d0;
+        --text: #e9ecff;
+        --muted: #a6b0d9;
+        --danger: #ff4d6d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          "Helvetica Neue", Arial;
+        background: radial-gradient(
+            1200px 800px at 85% -10%,
+            rgba(124, 92, 255, 0.25),
+            transparent
+          ),
+          radial-gradient(
+            800px 600px at -10% 90%,
+            rgba(0, 231, 208, 0.25),
+            transparent
+          ),
+          var(--bg);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(92vw, 380px);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 28px 22px 24px;
+        position: relative;
+        overflow: visible;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .chip {
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(124, 92, 255, 0.15);
+        color: #d9d3ff;
+        border: 1px dashed rgba(124, 92, 255, 0.55);
+      }
 
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Masuk atau Daftar</h1>
-        
-        <form id="authForm" class="space-y-4">
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="nama@email.com" required>
-            </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
-                <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="minimal 6 karakter" required>
-            </div>
+      .panda-wrap {
+        position: relative;
+        height: 150px;
+        margin-bottom: 8px;
+      }
+      .panda {
+        width: 168px;
+        aspect-ratio: 1;
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        display: block;
+      }
 
-            <div class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:space-x-3">
-                <button type="button" id="registerBtn" class="w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
-                    Daftar
-                </button>
-                <button type="button" id="loginBtn" class="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
-                    Login
-                </button>
-            </div>
-        </form>
-        
-        <p id="authMessage" class="mt-6 text-center text-sm font-medium"></p>
+      /* Inputs */
+      .form {
+        display: grid;
+        gap: 12px;
+        margin-top: 8px;
+      }
+      .field {
+        position: relative;
+      }
+      .field input {
+        width: 100%;
+        padding: 14px 44px 14px 44px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(7, 10, 26, 0.6);
+        color: var(--text);
+        outline: none;
+        transition: 0.25s border-color, 0.25s box-shadow, 0.25s background;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+      .field input::placeholder {
+        color: var(--muted);
+      }
+      .field input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.15);
+        background: rgba(7, 10, 26, 0.8);
+      }
+      .icon {
+        position: absolute;
+        inset: 0 0 0 0;
+        pointer-events: none;
+      }
+      .icon span {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        translate: 0 -50%;
+        font-size: 16px;
+        opacity: 0.8;
+      }
+      .eye-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        translate: 0 -50%;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 10px;
+      }
+      .eye-toggle:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+
+      .actions {
+        display: grid;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .btn {
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: #0f1020;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      /* Style for error message */
+      .error-message {
+        color: var(--danger);
+        text-align: center;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+      .success-message {
+        color: var(--accent-2);
+        text-align: center;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      .helper {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 2px;
+      }
+
+      /* Panda SVG parts animated */
+      .panda [data-part="arm-left"],
+      .panda [data-part="arm-right"] {
+        transform-origin: center;
+        transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .panda [data-part="eyelid-left"],
+      .panda [data-part="eyelid-right"] {
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        transform-origin: center;
+      }
+      .panda [data-part="pupil-left"],
+      .panda [data-part="pupil-right"] {
+        transition: transform 0.2s ease;
+        transform-origin: center;
+      }
+
+      /* Blink */
+      @keyframes blink {
+        0%,
+        92%,
+        100% {
+          transform: scaleY(1);
+        }
+        96% {
+          transform: scaleY(0.1);
+        }
+      }
+      .panda .eye {
+        animation: blink 6s infinite;
+        transform-origin: center;
+      }
+
+      /* Cover eyes state */
+      .covering .panda [data-part="arm-left"] {
+        transform: translate(22px, -16px) rotate(-22deg);
+      }
+      .covering .panda [data-part="arm-right"] {
+        transform: translate(-22px, -16px) rotate(22deg);
+      }
+      .covering .panda [data-part="eyelid-left"],
+      .covering .panda [data-part="eyelid-right"] {
+        transform: translateY(-4px) scaleY(1.8);
+        opacity: 0.95;
+      }
+
+      /* Look-at typing (username) */
+      .look-left .panda [data-part="pupil-left"],
+      .look-left .panda [data-part="pupil-right"] {
+        transform: translateX(-3px);
+      }
+      .look-right .panda [data-part="pupil-left"],
+      .look-right .panda [data-part="pupil-right"] {
+        transform: translateX(3px);
+      }
+
+      /* Subtle float */
+      .float {
+        animation: f 5s ease-in-out infinite;
+      }
+      @keyframes f {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      /* Credit */
+      .credit {
+        text-align: center;
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 14px;
+        opacity: 0.8;
+      }
+      .credit a {
+        color: #c7d2fe;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card float" id="card">
+      <div class="header">
+        <div class="chip">✨ Konsultasi AI</div>
+        <div style="margin-left: auto; font-size: 12px; color: var(--muted)">
+          Lius Retang
+        </div>
+      </div>
+
+      <div class="panda-wrap">
+        <!-- Cute Panda SVG (pure inline, no external assets) -->
+        <svg
+          class="panda"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <!-- Ears -->
+          <circle cx="60" cy="50" r="24" fill="#1b1b1b" />
+          <circle cx="140" cy="50" r="24" fill="#1b1b1b" />
+          <!-- Head -->
+          <circle cx="100" cy="100" r="70" fill="#ffffff" />
+          <!-- Eye patches -->
+          <ellipse cx="68" cy="95" rx="22" ry="18" fill="#1b1b1b" />
+          <ellipse cx="132" cy="95" rx="22" ry="18" fill="#1b1b1b" />
+
+          <!-- Eyes -->
+          <g class="eye">
+            <circle cx="68" cy="95" r="9" fill="#1b1b1b" />
+            <circle cx="132" cy="95" r="9" fill="#1b1b1b" />
+          </g>
+          <!-- Pupils (move left-right) -->
+          <circle data-part="pupil-left" cx="68" cy="95" r="4" fill="#ffffff" />
+          <circle
+            data-part="pupil-right"
+            cx="132"
+            cy="95"
+            r="4"
+            fill="#ffffff"
+          />
+
+          <!-- Eyelids (for covering/closing effect) -->
+          <ellipse
+            data-part="eyelid-left"
+            cx="68"
+            cy="92"
+            rx="11"
+            ry="6"
+            fill="#ffffff"
+            opacity="0"
+          />
+          <ellipse
+            data-part="eyelid-right"
+            cx="132"
+            cy="92"
+            rx="11"
+            ry="6"
+            fill="#ffffff"
+            opacity="0"
+          />
+
+          <!-- Nose & mouth -->
+          <path
+            d="M95 118 q5 6 10 0"
+            stroke="#1b1b1b"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <circle cx="100" cy="112" r="5" fill="#1b1b1b" />
+
+          <!-- Arms (paws) -->
+          <g data-part="arm-left">
+            <ellipse cx="52" cy="134" rx="20" ry="14" fill="#1b1b1b" />
+            <circle cx="44" cy="136" r="3" fill="#ffffff" />
+            <circle cx="52" cy="140" r="3" fill="#ffffff" />
+            <circle cx="60" cy="136" r="3" fill="#ffffff" />
+          </g>
+          <g data-part="arm-right">
+            <ellipse cx="148" cy="134" rx="20" ry="14" fill="#1b1b1b" />
+            <circle cx="140" cy="136" r="3" fill="#ffffff" />
+            <circle cx="148" cy="140" r="3" fill="#ffffff" />
+            <circle cx="156" cy="136" r="3" fill="#ffffff" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Firebase Auth Form -->
+      <form
+        class="form"
+        autocomplete="off"
+        onsubmit="event.preventDefault();"
+        aria-label="Form Login/Daftar Panda"
+      >
+        <div class="field">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Email"
+            required
+            aria-label="Email"
+          />
+          <div class="icon" aria-hidden="true"><span>📧</span></div>
+        </div>
+        <div class="field">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Password"
+            required
+            aria-label="Password"
+          />
+          <button
+            type="button"
+            class="eye-toggle"
+            id="togglePwd"
+            aria-label="Tampilkan/Sembunyikan password"
+            title="Show/Hide"
+          >
+            👀
+          </button>
+          <div class="icon" aria-hidden="true"><span>🔒</span></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="loginBtn">
+            Masuk
+          </button>
+          <button class="btn btn-ghost" type="button" id="registerBtn">
+            Daftar
+          </button>
+        </div>
+      </form>
+
+      <p id="authMessage" class="helper"></p>
+      <!-- Pesan status/error akan muncul di sini -->
+      <p class="helper">
+        Tip: Fokus ke kolom password ➜ panda nutup mata. Klik 👀 untuk intip.
+      </p>
+      <div class="credit">Didesain dengan ❤️ oleh Lius</div>
     </div>
 
     <!-- Integrasi SDK Firebase -->
@@ -40,91 +418,173 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
     <script type="module">
-        // Import fungsi-fungsi yang dibutuhkan
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword 
-        } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-        // Konfigurasi Firebase Anda
-        const firebaseConfig = {
-            apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4",
-            authDomain: "konsultasi-saya.firebaseapp.com",
-            projectId: "konsultasi-saya",
-            storageBucket: "konsultasi-saya.firebasestorage.app",
-            messagingSenderId: "1090569635887",
-            appId: "1:1090569635887:web:a5441ac4e7d0f9014adeda"
-        };
+      // Konfigurasi Firebase Anda
+      const firebaseConfig = {
+        apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4",
+        authDomain: "konsultasi-saya.firebaseapp.com",
+        projectId: "konsultasi-saya",
+        storageBucket: "konsultasi-saya.firebasestorage.app",
+        messagingSenderId: "1090569635887",
+        appId: "1:1090569635887:web:a5441ac4e7d0f9014adeda",
+      };
 
-        // Inisialisasi Firebase App dan Auth
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+      // Inisialisasi Firebase App dan Auth
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
-        // Ambil elemen HTML yang dibutuhkan
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginBtn = document.getElementById('loginBtn');
-        const authMessage = document.getElementById('authMessage');
+      // Ambil elemen HTML yang dibutuhkan untuk Panda Login
+      const card = document.getElementById("card");
+      const emailInput = document.getElementById("email"); // Mengganti 'username' menjadi 'email'
+      const passwordInput = document.getElementById("password");
+      const togglePwdBtn = document.getElementById("togglePwd");
+      const loginBtn = document.getElementById("loginBtn");
+      const registerBtn = document.getElementById("registerBtn");
+      const authMessage = document.getElementById("authMessage");
 
-        // Fungsi untuk menampilkan pesan status
-        function showMessage(message, isError = false) {
-            authMessage.textContent = message;
-            authMessage.classList.remove('text-green-600', 'text-red-600');
-            authMessage.classList.add(isError ? 'text-red-600' : 'text-green-600');
+      // Fungsi untuk menampilkan pesan status (lebih sesuai dengan style Panda Login)
+      function showMessage(message, isError = false) {
+        authMessage.textContent = message;
+        authMessage.classList.remove("success-message", "error-message");
+        authMessage.classList.add(
+          isError ? "error-message" : "success-message"
+        );
+      }
+
+      // --- Logic Animasi Panda (disalin dari kode Anda) ---
+      // Look left/right while typing email
+      emailInput.addEventListener("input", (e) => {
+        const len = e.target.value.length;
+        card.classList.toggle("look-left", len % 6 <= 2 && len > 0);
+        card.classList.toggle("look-right", len % 6 >= 3 && len > 0);
+        if (len === 0) {
+          card.classList.remove("look-left", "look-right");
+        }
+      });
+
+      // Cover eyes on password focus
+      passwordInput.addEventListener("focus", () =>
+        card.classList.add("covering")
+      );
+      passwordInput.addEventListener("blur", () =>
+        card.classList.remove("covering")
+      );
+
+      // Toggle password show/hide (panda peeks!)
+      togglePwdBtn.addEventListener("click", () => {
+        const showing = passwordInput.getAttribute("type") === "text";
+        if (showing) {
+          passwordInput.setAttribute("type", "password");
+          togglePwdBtn.textContent = "👀";
+          card.classList.add("covering"); // back to covering
+        } else {
+          passwordInput.setAttribute("type", "text");
+          togglePwdBtn.textContent = "🙈";
+          card.classList.remove("covering"); // panda peeks
+        }
+        passwordInput.focus(); // Fokus kembali ke input password setelah toggle
+      });
+      // --- Akhir Logic Animasi Panda ---
+
+      // Pengecekan status otentikasi saat halaman dimuat
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // Pengguna sudah login, arahkan ke halaman konsultasi
+          window.location.href = "konsultasi.html";
+        }
+        // Jika tidak ada user, biarkan di halaman login
+      });
+
+      // Event listener untuk tombol DAFTAR
+      registerBtn.addEventListener("click", async () => {
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+          showMessage("Email dan Password tidak boleh kosong!", true);
+          return;
         }
 
-        // Event listener untuk tombol DAFTAR
-        registerBtn.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            
-            try {
-                // Panggil fungsi pendaftaran dari Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                console.log("Pengguna baru terdaftar:", userCredential.user);
-                showMessage("Daftar berhasil! Anda sekarang bisa login.");
-                // Redirect ke halaman konsultasi setelah berhasil daftar
-                window.location.href = "konsultasi.html"; 
-            } catch (error) {
-                // Tangani kesalahan
-                console.error("Kesalahan saat mendaftar:", error.code, error.message);
-                let errorMessage = "Gagal mendaftar. Silakan coba lagi.";
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = "Email ini sudah terdaftar.";
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = "Kata sandi terlalu lemah (minimal 6 karakter).";
-                }
-                showMessage(errorMessage, true);
-            }
-        });
+        try {
+          registerBtn.disabled = true; // Disable tombol saat proses
+          loginBtn.disabled = true;
+          showMessage("Mendaftar...", false); // Pesan loading
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          console.log("Pengguna baru terdaftar:", userCredential.user);
+          showMessage("Daftar berhasil! Mengalihkan...", false);
+          setTimeout(() => {
+            // Beri sedikit jeda agar pesan terbaca
+            window.location.href = "konsultasi.html";
+          }, 1500);
+        } catch (error) {
+          console.error("Kesalahan saat mendaftar:", error.code, error.message);
+          let errorMessage = "Gagal mendaftar. Silakan coba lagi.";
+          if (error.code === "auth/email-already-in-use") {
+            errorMessage = "Email ini sudah terdaftar.";
+          } else if (error.code === "auth/weak-password") {
+            errorMessage = "Kata sandi terlalu lemah (minimal 6 karakter).";
+          }
+          showMessage(errorMessage, true);
+        } finally {
+          registerBtn.disabled = false;
+          loginBtn.disabled = false;
+        }
+      });
 
-        // Event listener untuk tombol LOGIN
-        loginBtn.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
+      // Event listener untuk tombol LOGIN
+      loginBtn.addEventListener("click", async () => {
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
-            try {
-                // Panggil fungsi login dari Firebase Auth
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log("Pengguna berhasil login:", userCredential.user);
-                showMessage("Login berhasil! Selamat datang kembali.");
-                
-                // Redirect ke halaman konsultasi setelah berhasil login
-                window.location.href = "konsultasi.html"; 
-            } catch (error) {
-                // Tangani kesalahan
-                console.error("Kesalahan saat login:", error.code, error.message);
-                let errorMessage = "Gagal login. Periksa email atau kata sandi Anda.";
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorMessage = "Email atau kata sandi salah.";
-                }
-                showMessage(errorMessage, true);
-            }
-        });
+        if (!email || !password) {
+          showMessage("Email dan Password tidak boleh kosong!", true);
+          return;
+        }
+
+        try {
+          loginBtn.disabled = true; // Disable tombol saat proses
+          registerBtn.disabled = true;
+          showMessage("Masuk...", false); // Pesan loading
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          console.log("Pengguna berhasil login:", userCredential.user);
+          showMessage("Login berhasil! Mengalihkan...", false);
+          setTimeout(() => {
+            // Beri sedikit jeda agar pesan terbaca
+            window.location.href = "konsultasi.html";
+          }, 1500);
+        } catch (error) {
+          console.error("Kesalahan saat login:", error.code, error.message);
+          let errorMessage = "Gagal login. Periksa email atau kata sandi Anda.";
+          if (
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/wrong-password" ||
+            error.code === "auth/invalid-credential"
+          ) {
+            errorMessage = "Email atau kata sandi salah.";
+          } else if (error.code === "auth/invalid-email") {
+            errorMessage = "Format email tidak valid.";
+          }
+          showMessage(errorMessage, true);
+        } finally {
+          loginBtn.disabled = false;
+          registerBtn.disabled = false;
+        }
+      });
     </script>
-
-</body>
+  </body>
 </html>

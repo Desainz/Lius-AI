@@ -9,6 +9,18 @@
     <style>
       /* Menggunakan font Poppins yang populer di kalangan Gen Z */
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+      /* Variabel CSS dari tema Panda Login */
+      :root {
+        --bg: #0f1226;
+        --card: #161a36;
+        --accent: #7c5cff;
+        --accent-2: #00e7d0;
+        --text: #e9ecff;
+        --muted: #a6b0d9;
+        --danger: #ff4d6d;
+      }
+
       body {
         font-family: "Poppins", sans-serif;
         transition: background-color 0.3s ease; /* Transisi untuk perubahan tema */
@@ -20,18 +32,40 @@
         padding: 1rem; /* Padding global untuk tampilan yang lebih baik di mobile */
         box-sizing: border-box;
         overflow-y: auto; /* Memungkinkan body untuk di-scroll jika konten melebihi viewport */
+
+        /* Latar belakang dari tema Panda Login */
+        background: radial-gradient(
+            1200px 800px at 85% -10%,
+            rgba(124, 92, 255, 0.25),
+            transparent
+          ),
+          radial-gradient(
+            800px 600px at -10% 90%,
+            rgba(0, 231, 208, 0.25),
+            transparent
+          ),
+          var(--bg);
+        color: var(--text); /* Warna teks default */
       }
 
       .container-bg {
-        background-color: #ffffff;
+        /* Styling dari tema Panda Login */
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
         border-radius: 1.5rem; /* Sudut lebih membulat */
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         display: flex; /* Kontainer utama juga flex */
         flex-direction: column; /* Konten di dalamnya bertumpuk */
         width: 100%;
         max-width: 90%; /* Lebar maksimum untuk mobile */
         flex-shrink: 0; /* Pastikan container tidak menyusut paksa */
-        /* Tinggi fleksibel agar bisa disesuaikan di berbagai layar, dengan overflow body */
         max-height: calc(
           100vh - 2rem
         ); /* Mengambil sebagian besar tinggi viewport minus padding body */
@@ -56,6 +90,12 @@
         text-align: center;
         flex-shrink: 0; /* Agar tidak menyusut saat ruang terbatas */
       }
+      .header-section h1 {
+        color: var(--text); /* Warna teks judul */
+      }
+      .header-section p {
+        color: var(--muted); /* Warna teks muted */
+      }
 
       /* Bagian utama chat dan input */
       .main-chat-area {
@@ -73,24 +113,31 @@
         overflow-y: auto; /* Aktifkan scrolling vertikal */
         padding: 1rem; /* Padding di dalam area scroll */
         border-radius: 0.75rem; /* Sudut lebih lembut */
-        background-color: #f8fafc; /* Warna latar belakang chat messages */
-        border: 1px solid #e2e8f0;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.04
+        ); /* Latar belakang chat messages yang lebih gelap */
+        border: 1px solid rgba(255, 255, 255, 0.06); /* Border yang lebih soft */
         display: flex;
         flex-direction: column;
         gap: 0.75rem; /* Spasi antar bubble chat */
         margin-bottom: 1rem; /* Spasi di bawah area chat, sebelum input */
         box-sizing: border-box;
       }
-      /* Scrollbar lebih minimalis */
       #chatMessages::-webkit-scrollbar {
         width: 8px;
       }
       #chatMessages::-webkit-scrollbar-thumb {
-        background-color: #a0aec0;
+        background-color: rgba(255, 255, 255, 0.2);
         border-radius: 4px;
       }
       #chatMessages::-webkit-scrollbar-track {
         background-color: transparent;
+      }
+      #initialChatMessage {
+        color: var(--muted); /* Warna teks placeholder */
       }
 
       /* Input dan tombol kirim */
@@ -99,12 +146,45 @@
         flex-shrink: 0; /* Agar tidak menyusut saat ruang terbatas */
       }
       .chat-input-section input {
-        padding: 0.75rem 1rem;
+        /* Styling input dari tema Panda Login */
+        width: 100%;
+        padding: 14px 14px 14px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(7, 10, 26, 0.6);
+        color: var(--text);
+        outline: none;
+        transition: 0.25s border-color, 0.25s box-shadow, 0.25s background;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
         min-height: 44px; /* Tinggi minimum untuk kemudahan sentuh */
       }
+      .chat-input-section input::placeholder {
+        color: var(--muted);
+      }
+      .chat-input-section input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.15);
+        background: rgba(7, 10, 26, 0.8);
+      }
+
       .chat-input-section button {
-        padding: 0.75rem 1.5rem;
+        /* Styling tombol dari tema Panda Login */
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--accent-2)
+        ); /* Default primary btn */
+        color: #0f1020; /* Warna teks pada tombol utama */
         min-height: 44px; /* Tinggi minimum untuk kemudahan sentuh */
+      }
+      .chat-input-section button:hover {
+        opacity: 0.9; /* Efek hover sederhana */
       }
 
       /* Styling pesan chat yang normal */
@@ -120,7 +200,8 @@
       }
 
       .message-bubble {
-        max-width: 80%; /* Batasi lebar bubble */
+        /* Disesuaikan untuk tampilan mobile */
+        max-width: 90%; /* Perbesar sedikit di mobile agar teks tidak terlalu terpotong */
         padding: 0.75rem 1rem; /* Padding di dalam bubble */
         border-radius: 1.25rem; /* Sudut bubble lebih membulat */
         word-wrap: break-word; /* Pesan panjang akan menyesuaikan */
@@ -143,30 +224,28 @@
       }
 
       .message-bubble.sent {
-        background-color: #c7d2fe; /* Warna biru lebih kalem */
-        color: #4338ca;
-        /* Bentuk bubble kanan */
+        background-color: #5b21b6; /* Ungu tua untuk sent messages (cocok di dark mode) */
+        color: #d8b4fe; /* Teks ungu muda */
         border-bottom-right-radius: 0.25rem; /* Sudut kanan bawah lebih tajam */
-        align-self: flex-end; /* Memastikan bubble di kanan */
-        align-items: flex-end; /* Align text to end within sent bubble */
+        align-self: flex-end;
+        align-items: flex-end;
       }
       .message-bubble.sent::before {
         border-width: 0 10px 10px 0;
-        border-color: transparent #c7d2fe transparent transparent;
+        border-color: transparent #5b21b6 transparent transparent;
         right: -8px; /* Posisi panah */
       }
 
       .message-bubble.received {
-        background-color: #d1fae5; /* Warna hijau muda yang cerah */
-        color: #047857;
-        /* Bentuk bubble kiri */
+        background-color: #1f2937; /* Abu-abu gelap untuk received messages (cocok di dark mode) */
+        color: var(--text); /* Teks putih/terang */
         border-bottom-left-radius: 0.25rem; /* Sudut kiri bawah lebih tajam */
-        align-self: flex-start; /* Memastikan bubble di kiri */
-        align-items: flex-start; /* Align text to start within received bubble */
+        align-self: flex-start;
+        align-items: flex-start;
       }
       .message-bubble.received::before {
         border-width: 10px 10px 0 0;
-        border-color: transparent transparent transparent #d1fae5;
+        border-color: transparent transparent transparent #1f2937;
         left: -8px; /* Posisi panah */
       }
 
@@ -174,29 +253,20 @@
         font-size: 0.8rem;
         font-weight: 600;
         margin-bottom: 0.25rem;
-        color: rgba(0, 0, 0, 0.6); /* Warna nama pengirim */
+        color: var(--muted); /* Warna nama pengirim */
       }
 
       .message-time {
         font-size: 0.7rem; /* Ukuran waktu lebih kecil */
-        color: #6b7280; /* Abu-abu */
+        color: var(--muted); /* Abu-abu */
         margin-top: 0.5rem; /* Spasi dari teks pesan */
       }
 
       /* Styling untuk loading indicator */
       .loading-dots span {
         animation: bounce 1.4s infinite ease-in-out both;
+        background-color: var(--muted); /* Warna dots mengikuti tema */
       }
-      .loading-dots span:nth-child(1) {
-        animation-delay: -0.32s;
-      }
-      .loading-dots span:nth-child(2) {
-        animation-delay: -0.16s;
-      }
-      .loading-dots span:nth-child(3) {
-        animation-delay: 0s;
-      }
-
       @keyframes bounce {
         0%,
         80%,
@@ -212,7 +282,6 @@
       .fade-in-up {
         animation: fadeInUp 1s ease-out forwards;
       }
-
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -244,40 +313,102 @@
         transform: scale(1.1);
       }
 
-      /* Tema Default (Hijau) */
+      /* Tema Default (Panda/Gelap) - Ini akan menjadi dasar theme-green */
       body.theme-green {
-        background-color: #e6ffee;
+        background: radial-gradient(
+            1200px 800px at 85% -10%,
+            rgba(124, 92, 255, 0.25),
+            transparent
+          ),
+          radial-gradient(
+            800px 600px at -10% 90%,
+            rgba(0, 231, 208, 0.25),
+            transparent
+          ),
+          var(--bg);
+        color: var(--text);
       }
       body.theme-green .container-bg {
-        background-color: #ffffff;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.06);
       }
       body.theme-green .theme-toggle-btn {
-        background-color: #10b981; /* Hijau */
+        background-color: var(--accent); /* Warna accent dari Panda */
       }
       body.theme-green .theme-toggle-btn svg {
         color: #ffffff;
       }
       body.theme-green .message-bubble.sent {
-        background-color: #c7d2fe;
-        color: #4338ca;
+        background-color: #5b21b6; /* Ungu tua */
+        color: #d8b4fe;
       }
       body.theme-green .message-bubble.sent::before {
-        border-color: transparent #c7d2fe transparent transparent;
+        border-color: transparent #5b21b6 transparent transparent;
       }
       body.theme-green .message-bubble.received {
-        background-color: #d1fae5;
-        color: #047857;
+        background-color: #1f2937; /* Abu-abu gelap */
+        color: var(--text);
       }
       body.theme-green .message-bubble.received::before {
-        border-color: transparent transparent transparent #d1fae5;
+        border-color: transparent transparent transparent #1f2937;
+      }
+      body.theme-green .chat-input-section input {
+        background: rgba(7, 10, 26, 0.6);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+      }
+      body.theme-green .chat-input-section input::placeholder {
+        color: var(--muted);
+      }
+      body.theme-green .chat-input-section input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.15);
+        background: rgba(7, 10, 26, 0.8);
+      }
+      body.theme-green .chat-input-section button {
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: #0f1020;
+      }
+      body.theme-green .chat-input-section button:hover {
+        opacity: 0.9;
+      }
+      body.theme-green #chatMessages {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      body.theme-green #initialChatMessage,
+      body.theme-green .message-sender,
+      body.theme-green .message-time {
+        color: var(--muted);
+      }
+      body.theme-green .loading-dots span {
+        background-color: var(--muted);
       }
 
       /* Tema Pink */
       body.theme-pink {
         background-color: #ffe6f2; /* Latar pink muda */
+        color: #4a0429; /* Teks default pink lebih gelap */
       }
       body.theme-pink .container-bg {
         background-color: #fff0f5; /* Container pink lebih gelap */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.06); /* Shadow tetap ada */
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Border lebih terang */
+        backdrop-filter: none; /* Matikan blur di mode terang */
+      }
+      body.theme-pink .theme-toggle-btn {
+        background-color: #ec4899; /* Pink */
+      }
+      body.theme-pink .theme-toggle-btn svg {
+        color: #ffffff;
       }
       body.theme-pink .message-bubble.sent {
         background-color: #fbcfe8; /* Pink lebih terang */
@@ -287,33 +418,49 @@
         border-color: transparent #fbcfe8 transparent transparent;
       }
       body.theme-pink .message-bubble.received {
-        /* Perbaikan warna di sini: Lavender-pink yang lebih harmonis */
-        background-color: #f0e0f5; /* Warna lavender pink sangat muda */
-        color: #6a008a; /* Teks ungu-pink gelap */
+        background-color: #e0e7ff; /* Biru sangat muda (cocok dengan pink) */
+        color: #4f46e5; /* Biru keunguan */
       }
       body.theme-pink .message-bubble.received::before {
-        /* Panah bubble sesuai warna baru */
-        border-color: transparent transparent transparent #f0e0f5;
+        border-color: transparent transparent transparent #e0e7ff;
       }
-      body.theme-pink .bg-blue-600,
-      body.theme-pink .bg-green-600 {
+      body.theme-pink .chat-input-section input {
+        background: #ffffff;
+        border-color: #e2e8f0;
+        color: #4a0429;
+      }
+      body.theme-pink .chat-input-section input::placeholder {
+        color: #a0aec0;
+      }
+      body.theme-pink .chat-input-section input:focus {
+        border-color: #ec4899; /* Pink */
+        box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15); /* Pink shadow */
+        background: #ffffff;
+      }
+      body.theme-pink .chat-input-section button {
         background-color: #db2777; /* Tombol jadi pink gelap */
+        color: #ffffff;
       }
-      body.theme-pink .hover\:bg-blue-700:hover,
-      body.theme-pink .hover\:bg-green-700:hover {
+      body.theme-pink .chat-input-section button:hover {
         background-color: #be185d; /* Hover tombol pink lebih gelap */
       }
-      body.theme-pink .focus\:ring-blue-500:focus {
-        --tw-ring-color: #db2777; /* Ring focus juga pink */
+      body.theme-pink #chatMessages {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
       }
-      body.theme-pink .focus\:border-blue-500:focus {
-        border-color: #db2777; /* Border focus juga pink */
+      body.theme-pink #initialChatMessage,
+      body.theme-pink .message-sender,
+      body.theme-pink .message-time {
+        color: #6b7280;
       }
-      body.theme-pink .theme-toggle-btn {
-        background-color: #ec4899; /* Pink */
+      body.theme-pink .header-section h1 {
+        color: #2d3748; /* Warna teks judul */
       }
-      body.theme-pink .theme-toggle-btn svg {
-        color: #ffffff;
+      body.theme-pink .header-section p {
+        color: #718096; /* Warna teks muted */
+      }
+      body.theme-pink .loading-dots span {
+        background-color: #6b7280; /* Warna dots mengikuti tema */
       }
     </style>
   </head>
@@ -321,26 +468,21 @@
     <div class="container-bg p-0 rounded-3xl">
       <!-- p-0 untuk mengelola padding di dalam sections -->
       <div class="header-section">
-        <h1
-          class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2 fade-in-up"
-        >
+        <h1 class="text-3xl sm:text-4xl font-bold mb-2 fade-in-up">
           AI Lius Retang Hub!
         </h1>
-        <p id="welcomeMessage" class="text-base text-gray-600">Memuat...</p>
+        <p id="welcomeMessage" class="text-base">Memuat...</p>
       </div>
 
       <div id="content" class="hidden flex flex-col flex-grow main-chat-area">
-        <p class="text-gray-700 text-center mb-4">
+        <p class="text-center mb-4" style="color: var(--muted)">
           Mulai konsultasi Anda sekarang:
         </p>
 
         <!-- Area pesan chat -->
-        <div
-          id="chatMessages"
-          class="bg-gray-50 border border-gray-200 rounded-lg text-left"
-        >
+        <div id="chatMessages" class="rounded-lg text-left">
           <!-- Pesan chat akan muncul di sini -->
-          <p id="initialChatMessage" class="text-gray-500 text-center text-sm">
+          <p id="initialChatMessage" class="text-center text-sm">
             Mulai konsultasi Anda!
           </p>
         </div>
@@ -349,35 +491,19 @@
         <div
           class="chat-input-section flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3"
         >
-          <input
-            type="text"
-            id="chatInput"
-            class="flex-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-            placeholder="Ketik pesan Anda..."
-          />
-          <button
-            id="sendMessageBtn"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300 ease-in-out"
-          >
-            Kirim
-          </button>
+          <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." />
+          <button id="sendMessageBtn">Kirim</button>
         </div>
         <!-- Loading indicator untuk balasan AI -->
         <div
           id="loadingIndicator"
-          class="hidden mt-4 text-gray-600 text-sm flex items-center justify-center pb-4"
+          class="hidden mt-4 text-sm flex items-center justify-center pb-4"
         >
           <span>Lius sedang mengetik</span>
           <span class="loading-dots ml-2">
-            <span
-              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
-            ></span>
-            <span
-              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
-            ></span>
-            <span
-              class="inline-block w-2 h-2 bg-gray-600 rounded-full mx-0.5"
-            ></span>
+            <span class="inline-block w-2 h-2 rounded-full mx-0.5"></span>
+            <span class="inline-block w-2 h-2 rounded-full mx-0.5"></span>
+            <span class="inline-block w-2 h-2 rounded-full mx-0.5"></span>
           </span>
         </div>
       </div>
@@ -413,7 +539,6 @@
     </div>
 
     <!-- Elemen Audio untuk Musik Latar Belakang -->
-    <!-- Penting: Ganti 'path/to/your/music.mp3' dengan lokasi file MP3 Anda -->
     <audio
       id="backgroundMusic"
       loop
@@ -465,7 +590,7 @@
 
       // Konfigurasi Firebase Anda (SAMA DENGAN index.html)
       const firebaseConfig = {
-        apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4",
+        apiKey: "AIzaSyBMs2O5rThet-0CnN1Pec0fNpD_Y_z9ox4", // GANTI DENGAN API KEY ANDA
         authDomain: "konsultasi-saya.firebaseapp.com",
         projectId: "konsultasi-saya",
         storageBucket: "konsultasi-saya.firebasestorage.app",
@@ -572,6 +697,7 @@
         chatHistory.push({ role: "user", parts: [{ text: promptUntukAI }] });
 
         const payload = { contents: chatHistory };
+        // GANTI DENGAN KUNCI API YANG SUDAH KAMU DAPATKAN!
         const apiKey = "AIzaSyASz8fEtWreRNQcD_ucLYfG6ZxQWUjU_uU";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
@@ -669,6 +795,9 @@
           console.error("UID pengguna tidak tersedia untuk memuat chat.");
           return;
         }
+
+        let isInitialLoad = true;
+
         const messagesQuery = query(
           collection(db, "chats", userId, "messages"),
           orderBy("timestamp", "asc")
@@ -692,7 +821,12 @@
                 }
               });
 
-            snapshot.docChanges().forEach((change) => {
+            const changes = snapshot.docChanges();
+            const hasAddedDocsInThisSnapshot = changes.some(
+              (change) => change.type === "added"
+            );
+
+            changes.forEach((change) => {
               const message = change.doc.data();
               const messageId = change.doc.id;
               const messageTime = message.timestamp
@@ -703,7 +837,6 @@
                 : "Sekarang";
 
               if (change.type === "added") {
-                console.log("Pesan baru ditambahkan:", message);
                 if (!currentDomMessageIds.has(messageId)) {
                   const messageContainer = document.createElement("div");
                   messageContainer.classList.add(
@@ -713,6 +846,7 @@
                   messageContainer.dataset.docId = messageId;
 
                   const messageBubble = document.createElement("div");
+                  // Hapus `align-self` dan `align-items` dari sini dan atur melalui `message-container` atau `message-bubble` global
                   messageBubble.classList.add("message-bubble");
                   messageBubble.classList.add(
                     message.sender === currentUserEmail ? "sent" : "received"
@@ -729,6 +863,8 @@
                   }
 
                   const messageTextElement = document.createElement("div");
+                  // Tambahkan class untuk memastikan teks mengisi bubble
+                  messageTextElement.classList.add("message-text-content");
                   const timeElement = document.createElement("span");
                   timeElement.classList.add("message-time");
                   timeElement.textContent = messageTime;
@@ -745,7 +881,24 @@
                   };
 
                   if (message.sender === "AI Konsultan") {
-                    typeMessage(messageTextElement, message.text);
+                    if (isInitialLoad && hasAddedDocsInThisSnapshot) {
+                      messageTextElement.innerHTML = message.text.replace(
+                        /\n/g,
+                        "<br>"
+                      );
+                      messageTextElement.innerHTML =
+                        messageTextElement.innerHTML.replace(
+                          /\*\*(.*?)\*\*/g,
+                          "<strong>$1</strong>"
+                        );
+                      messageTextElement.innerHTML =
+                        messageTextElement.innerHTML.replace(
+                          /\*(.*?)\*/g,
+                          "<em>$1</em>"
+                        );
+                    } else {
+                      typeMessage(messageTextElement, message.text);
+                    }
                   } else {
                     messageTextElement.innerHTML = message.text.replace(
                       /\n/g,
@@ -761,7 +914,6 @@
                         /\*(.*?)\*/g,
                         "<em>$1</em>"
                       );
-                    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
                   }
                 }
               } else if (change.type === "modified") {
@@ -788,7 +940,6 @@
                   existingElement.container.querySelector(
                     ".message-time"
                   ).textContent = messageTime;
-                  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
                 }
               } else if (change.type === "removed") {
                 console.log("Pesan dihapus:", message);
@@ -798,10 +949,14 @@
                     existingElement.container
                   );
                   delete messageDomElements[messageId];
-                  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
                 }
               }
             });
+
+            if (isInitialLoad && hasAddedDocsInThisSnapshot) {
+              isInitialLoad = false;
+            }
+
             chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
           },
           (error) => {
@@ -816,7 +971,6 @@
       document.body.classList.add(currentTheme);
 
       themeToggleBtn.addEventListener("click", () => {
-        // Logika perubahan tema
         if (document.body.classList.contains("theme-green")) {
           document.body.classList.remove("theme-green");
           document.body.classList.add("theme-pink");
@@ -827,7 +981,6 @@
           localStorage.setItem("theme", "theme-green");
         }
 
-        // Logika play/pause musik
         if (backgroundMusic.paused) {
           backgroundMusic
             .play()
